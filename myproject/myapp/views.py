@@ -7,6 +7,7 @@ from .models import Profile
 def index(request):
     return render(request, 'index.html')
 
+
 def signup(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -36,3 +37,21 @@ def signup(request):
             return redirect('signup')
     else:
         return render(request, 'signup.html')
+    
+
+def signin(request):
+
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+
+        user = auth.authenticate(username = username, password = password)
+
+        if user is not None:
+            auth.login(request, user)
+            return redirect ('/')
+        else:
+            messages.info(request, "Invalid credentials")
+            return redirect('signin')
+    else:
+        return render(request, 'signin.html')
