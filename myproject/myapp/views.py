@@ -3,7 +3,10 @@ from django.http import HttpResponse
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from .models import Profile
+from django.contrib.auth.decorators import login_required
 
+
+@login_required(login_url='signin')
 def index(request):
     return render(request, 'index.html')
 
@@ -26,12 +29,15 @@ def signup(request):
                 user = User.objects.create_user(username=username, email=email, password=password)
                 user.save()
 
+                #Log user in
+                user_login = auth.authenticate(username = username, password = password)
+                auth.login(request, user_login)
 
                 #create a Profile for the new user
                 user_model = User.objects.get(username = username)
                 new_profile = Profile.objects.create(user = user_model, id_user = user_model.id)
                 new_profile.save()
-                return redirect('signup')
+                return redirect('settings')
         else:
             messages.info(request, 'Passwords not matching')
             return redirect('signup')
@@ -57,6 +63,32 @@ def signin(request):
         return render(request, 'signin.html')
     
 
+@login_required(login_url='signin')
 def logout(request):
     auth.logout(request)
     return redirect('signup')
+
+
+@login_required(login_url='signin')
+def settings(request):
+    user_profile = Profile.objects.get(user = request.user)
+
+    if request.method == 'POST':
+        if request.FILES.get('image') == None:
+            image = user_profile.profile_picture
+        if request.FILES.get('image') != None:
+            image = request.FILES.get('image')
+            
+        bio = request.POST['bio']
+        location = request.POST['location']
+
+        user_profile.profile_picture = image
+        user_profile.bio = bio
+        user_profile.location = location
+        user_profile.save()
+
+        
+
+        return redirect('settings')
+
+    return render(request, 'setting.html', {'user_profile' : user_profile})
