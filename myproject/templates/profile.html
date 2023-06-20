@@ -31,8 +31,12 @@
 					{% csrf_token %}
 					<div class="add-btn">
 					<span style="color: white; font-size: 27px; margin-right: 520px;"><b><u><a href="/">Home</a></u></b></span>
-					<span style="color: white; font-size: 27px;"><b>{{posts_length}}</b></span>
-					{% if user_followers == 0 or user_followers == 1 %}
+					{% if posts_length == 1 %}
+					<span style="color: white; font-size: 27px;"><b>{{posts_length}} post</b></span>
+					{% else %}
+					<span style="color: white; font-size: 27px;"><b>{{posts_length}} posts</b></span>
+					{% endif %}
+					{% if user_followers == 1 %}
 					<span style="color: white; font-size: 27px;"><b>{{user_followers}} follower</b></span>
 					{% else %}
 					<span style="color: white; font-size: 27px;"><b>{{user_followers}} followers</b></span>
